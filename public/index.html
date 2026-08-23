@@ -2,778 +2,1850 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Axomi-AI — Assamese AI Animation</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Axomi-AI — Assamese AI Animation Studio</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f7;
+      font-family:
+        Arial,
+        "Noto Sans Assamese",
+        sans-serif;
+
+      background:
+        linear-gradient(
+          180deg,
+          #f4f7f5 0%,
+          #eef2f0 100%
+        );
+
       color: #111;
     }
 
+    /* =========================
+       HEADER
+       ========================= */
+
     header {
-      background: #111;
+      background:
+        linear-gradient(
+          135deg,
+          #101010,
+          #252525
+        );
+
       color: white;
-      padding: 22px 18px;
+      padding: 30px 18px;
       text-align: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 34px;
+      letter-spacing: .3px;
     }
 
     header p {
-      margin: 8px 0 0;
-      opacity: .8;
+      margin: 10px 0 0;
+      opacity: .82;
+      font-size: 15px;
     }
+
+    .logo-leaf {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    /* =========================
+       MAIN
+       ========================= */
 
     .container {
       width: 94%;
-      max-width: 850px;
-      margin: 22px auto;
+      max-width: 900px;
+      margin: 25px auto 60px;
     }
 
     .card {
       background: white;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 22px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+      margin-bottom: 22px;
+
+      box-shadow:
+        0 8px 30px rgba(0,0,0,.08);
     }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 23px;
+    }
+
+    /* =========================
+       LABELS
+       ========================= */
 
     label {
       display: block;
       font-weight: bold;
-      margin: 16px 0 8px;
+      margin: 18px 0 8px;
     }
 
     textarea,
     select {
+
       width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 14px;
+
+      border: 1px solid #d8d8d8;
+
+      border-radius: 15px;
+
       padding: 15px;
+
       font-size: 16px;
-      background: white;
+
+      background: #fff;
+
+      outline: none;
+
+      transition: .2s;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: #111;
+
+      box-shadow:
+        0 0 0 3px rgba(0,0,0,.06);
     }
 
     textarea {
-      min-height: 160px;
+      min-height: 170px;
       resize: vertical;
     }
+
+    /* =========================
+       CHIPS
+       ========================= */
 
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 9px;
       margin: 15px 0;
     }
 
     .chip {
-      background: #f1f1f1;
+      background: #f0f1f1;
       border-radius: 30px;
-      padding: 12px 16px;
-      font-size: 15px;
+      padding: 10px 14px;
+      font-size: 14px;
     }
+
+    /* =========================
+       AXOMI STYLE BOX
+       ========================= */
 
     .assam-box {
       background: #fff7d6;
+
       border: 2px solid #ead477;
+
       border-radius: 18px;
+
       padding: 17px;
+
       margin: 18px 0;
-      line-height: 1.5;
+
+      line-height: 1.55;
     }
 
+    /* =========================
+       BUTTONS
+       ========================= */
+
     button {
+
       width: 100%;
+
       border: 0;
+
       border-radius: 16px;
+
       padding: 17px;
-      font-size: 18px;
+
+      font-size: 17px;
+
       font-weight: bold;
+
       cursor: pointer;
+
+      transition:
+        transform .15s,
+        opacity .15s;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
     }
 
     #createBtn {
       background: #111;
       color: white;
-      margin-top: 20px;
+      margin-top: 22px;
     }
 
-    #createBtn:disabled {
-      opacity: .6;
+    #visualGeneratorButton {
+      background:
+        linear-gradient(
+          135deg,
+          #111,
+          #333
+        );
+
+      color: white;
+
+      margin-top: 22px;
+    }
+
+    /* =========================
+       STATUS
+       ========================= */
+
+    .loading {
+
+      display: none;
+
+      text-align: center;
+
+      padding: 18px;
+
+      font-weight: bold;
+
+      background: #f2f2f2;
+
+      border-radius: 14px;
+
+      margin-top: 15px;
     }
 
     .error {
-      color: #d00000;
-      background: #ffe7e7;
-      padding: 13px;
-      border-radius: 12px;
-      margin-top: 15px;
+
       display: none;
+
+      color: #a00000;
+
+      background: #ffe7e7;
+
+      padding: 14px;
+
+      border-radius: 13px;
+
+      margin-top: 15px;
+
       white-space: pre-wrap;
+
+      line-height: 1.5;
     }
 
     .success {
+
+      display: none;
+
       color: #08752d;
+
       background: #e7faed;
-      padding: 13px;
-      border-radius: 12px;
+
+      padding: 14px;
+
+      border-radius: 13px;
+
       margin-top: 15px;
+    }
+
+    /* =========================
+       RESULT
+       ========================= */
+
+    #resultCard {
       display: none;
     }
 
-    .scene {
-      border: 1px solid #ddd;
+    .summary {
+
+      background: #f6f6f6;
+
       border-radius: 16px;
+
       padding: 17px;
-      margin-top: 14px;
+
+      line-height: 1.6;
+    }
+
+    .scene {
+
+      border: 1px solid #ddd;
+
+      border-radius: 17px;
+
+      padding: 17px;
+
+      margin-top: 15px;
+
+      background: white;
     }
 
     .scene h3 {
       margin-top: 0;
+      line-height: 1.4;
+    }
+
+    .scene-description {
+      line-height: 1.6;
     }
 
     .prompt {
-      background: #f5f5f5;
-      border-radius: 10px;
-      padding: 12px;
+
+      background: #f4f4f4;
+
+      border-radius: 12px;
+
+      padding: 13px;
+
       font-size: 14px;
+
+      line-height: 1.55;
+
+      margin-top: 12px;
+    }
+
+    .voice-line {
+
+      background: #fff7d6;
+
+      border-radius: 12px;
+
+      padding: 13px;
+
+      line-height: 1.5;
+
+      margin-top: 12px;
+    }
+
+    /* =========================
+       VISUAL RESULTS
+       ========================= */
+
+    #visualResults {
+
+      margin-top: 25px;
+
+      padding: 20px;
+
+      background: white;
+
+      border-radius: 20px;
+
+      box-shadow:
+        0 5px 25px rgba(0,0,0,.07);
+    }
+
+    .visual-header {
+      margin-bottom: 15px;
+    }
+
+    .visual-header h2 {
+      margin: 0 0 6px;
+    }
+
+    .visual-header p {
+      margin: 0;
+      color: #666;
+    }
+
+    .visual-card {
+
+      margin-top: 20px;
+
+      border: 1px solid #ddd;
+
+      border-radius: 17px;
+
+      overflow: hidden;
+
+      background: #fafafa;
+    }
+
+    .visual-title {
+
+      padding: 13px;
+
+      font-weight: bold;
+    }
+
+    .visual-image {
+
+      width: 100%;
+
+      display: block;
+
+      background: #eee;
+
+      min-height: 150px;
+
+      object-fit: cover;
+    }
+
+    .save-button {
+
+      width: 100%;
+
+      padding: 13px;
+
+      border-radius: 11px;
+
+      background: #111;
+
+      color: white;
+
+      font-size: 15px;
+    }
+
+    .visual-error {
+
+      display: none;
+
+      margin-top: 12px;
+
+      padding: 13px;
+
+      border-radius: 12px;
+
+      background: #ffe5e5;
+
+      color: #a00000;
+
       line-height: 1.5;
     }
 
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 15px;
-      font-weight: bold;
+    .no-images {
+
+      padding: 16px;
+
+      background: #fff7d6;
+
+      border-radius: 13px;
+
+      line-height: 1.5;
     }
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    footer {
+
+      text-align: center;
+
+      color: #777;
+
+      font-size: 13px;
+
+      padding: 10px 20px 35px;
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 600px) {
+
+      header {
+        padding: 25px 15px;
+      }
+
+      header h1 {
+        font-size: 29px;
+      }
+
+      .container {
+        width: 94%;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 19px;
+      }
+
+      textarea {
+        min-height: 145px;
+      }
+
+    }
+
   </style>
 </head>
 
+
 <body>
 
-<header>
-  <h1>🌿 Axomi-AI</h1>
-  <p>AI Animation Studio for Assamese Stories</p>
-</header>
+  <!-- =========================
+       HEADER
+       ========================= -->
 
-<div class="container">
+  <header>
 
-  <div class="card">
+    <h1>
+      <span class="logo-leaf">🌿</span>
+      Axomi-AI
+    </h1>
 
-    <h2>🎬 Create Your Animation</h2>
+    <p>
+      AI Animation Studio for Assamese Stories
+    </p>
 
-    <label for="story">Your Story</label>
+  </header>
 
-    <textarea
-      id="story"
-      placeholder="Write your story in Assamese or English..."
-    ></textarea>
 
-    <div class="chips">
-      <div class="chip">🌿 Assam environment</div>
-      <div class="chip">👘 Assamese attire</div>
-      <div class="chip">🥁 Assamese culture</div>
-      <div class="chip">🗣️ Assamese voice</div>
-    </div>
+  <main class="container">
 
-    <div class="assam-box">
-      🔒 <b>Axomi Style</b><br>
-      Automatically prioritizes authentic Assamese people,
-      clothing, places, environment and culture.
-    </div>
 
-    <label for="style">🎨 Animation Style</label>
+    <!-- =========================
+         CREATOR
+         ========================= -->
 
-    <select id="style">
-      <option>2D cinematic</option>
-      <option>2D cartoon</option>
-      <option>Anime</option>
-      <option>Storybook</option>
-      <option>3D cinematic</option>
-      <option>Watercolor</option>
-    </select>
+    <section class="card">
 
-    <label for="format">📱 Video Format</label>
+      <h2>
+        🎬 Create Your Animation
+      </h2>
 
-    <select id="format">
-      <option value="9:16">9:16 Shorts/Reels</option>
-      <option value="16:9">16:9 YouTube</option>
-      <option value="1:1">1:1 Square</option>
-    </select>
 
-    <label for="length">⏱️ Duration</label>
+      <label for="story">
+        Your Story
+      </label>
 
-    <select id="length">
-      <option value="30">30 seconds</option>
-      <option value="60">60 seconds</option>
-      <option value="90">90 seconds</option>
-      <option value="120">2 minutes</option>
-    </select>
+      <textarea
+        id="story"
+        placeholder="Write your story in Assamese or English..."
+      ></textarea>
 
-    <label for="voice">🗣️ Voice</label>
 
-    <select id="voice">
-      <option>Assamese male</option>
-      <option>Assamese female</option>
-      <option>English male</option>
-      <option>English female</option>
-      <option>No voice</option>
-    </select>
+      <div class="chips">
 
-    <button id="createBtn">
-      ✨ Create My Animation
-    </button>
+        <div class="chip">
+          🌿 Assam environment
+        </div>
 
-    <div id="loading" class="loading">
-      🧠 Axomi-AI is creating your storyboard...
-    </div>
+        <div class="chip">
+          👘 Assamese attire
+        </div>
 
-    <div id="error" class="error"></div>
+        <div class="chip">
+          🥁 Assamese culture
+        </div>
 
-    <div id="success" class="success">
-      ✅ Animation storyboard created successfully!
-    </div>
+        <div class="chip">
+          🗣️ Assamese voice
+        </div>
 
-  </div>
+      </div>
 
-  <div class="card" id="resultCard" style="display:none;">
 
-    <h2>🎞️ Your Animation</h2>
+      <div class="assam-box">
 
-    <div id="summary"></div>
+        🔒 <b>Axomi Style</b>
 
-    <div id="scenes"></div>
+        <br>
 
-  </div>
+        Automatically prioritizes authentic Assamese people,
+        clothing, places, environment and culture.
 
-</div>
+      </div>
 
-<script>
 
-const createBtn = document.getElementById("createBtn");
-const loading = document.getElementById("loading");
-const errorBox = document.getElementById("error");
-const successBox = document.getElementById("success");
+      <!-- STYLE -->
 
-const resultCard = document.getElementById("resultCard");
-const summaryBox = document.getElementById("summary");
-const scenesBox = document.getElementById("scenes");
+      <label for="style">
+        🎨 Animation Style
+      </label>
 
-createBtn.addEventListener("click", createAnimation);
+      <select id="style">
 
-async function createAnimation() {
+        <option value="2D cinematic">
+          2D cinematic
+        </option>
 
-  errorBox.style.display = "none";
-  successBox.style.display = "none";
-  resultCard.style.display = "none";
+        <option value="2D cartoon">
+          2D cartoon
+        </option>
 
-  const story = document.getElementById("story").value.trim();
-  const style = document.getElementById("style").value;
-  const format = document.getElementById("format").value;
-  const length = document.getElementById("length").value;
-  const voice = document.getElementById("voice").value;
+        <option value="Anime">
+          Anime
+        </option>
 
-  if (!story) {
-    showError("Please enter your story first.");
-    return;
-  }
+        <option value="Storybook">
+          Storybook
+        </option>
 
-  createBtn.disabled = true;
-  loading.style.display = "block";
+        <option value="3D cinematic">
+          3D cinematic
+        </option>
 
-  try {
+        <option value="Watercolor">
+          Watercolor
+        </option>
 
-    const response = await fetch("/.netlify/functions/generate", {
-      method: "POST",
+      </select>
 
-      headers: {
-        "Content-Type": "application/json"
-      },
 
-      body: JSON.stringify({
-        story: story,
-        style: style,
-        format: format,
-        length: Number(length),
-        voice: voice
-      })
-    });
+      <!-- FORMAT -->
 
-    /*
-      IMPORTANT:
-      We read text first instead of immediately calling response.json().
-      This prevents the "Unexpected end of JSON input" problem.
-    */
+      <label for="format">
+        📱 Video Format
+      </label>
 
-    const rawText = await response.text();
+      <select id="format">
 
-    console.log("SERVER RESPONSE:", rawText);
+        <option value="9:16">
+          9:16 Shorts / Reels
+        </option>
 
-    if (!rawText || !rawText.trim()) {
-      throw new Error(
-        "The server returned an empty response."
+        <option value="16:9">
+          16:9 YouTube
+        </option>
+
+        <option value="1:1">
+          1:1 Square
+        </option>
+
+      </select>
+
+
+      <!-- LENGTH -->
+
+      <label for="length">
+        ⏱️ Duration
+      </label>
+
+      <select id="length">
+
+        <option value="30">
+          30 seconds
+        </option>
+
+        <option value="60">
+          60 seconds
+        </option>
+
+        <option value="90">
+          90 seconds
+        </option>
+
+        <option value="120">
+          2 minutes
+        </option>
+
+      </select>
+
+
+      <!-- VOICE -->
+
+      <label for="voice">
+        🗣️ Voice
+      </label>
+
+      <select id="voice">
+
+        <option value="Assamese male">
+          Assamese male
+        </option>
+
+        <option value="Assamese female">
+          Assamese female
+        </option>
+
+        <option value="English male">
+          English male
+        </option>
+
+        <option value="English female">
+          English female
+        </option>
+
+        <option value="No voice">
+          No voice
+        </option>
+
+      </select>
+
+
+      <!-- CREATE -->
+
+      <button id="createBtn">
+        ✨ Create My Animation
+      </button>
+
+
+      <div id="loading" class="loading">
+        🧠 Axomi-AI is creating your storyboard...
+      </div>
+
+
+      <div id="error" class="error"></div>
+
+
+      <div id="success" class="success">
+        ✅ Animation storyboard created successfully!
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         STORYBOARD RESULT
+         ========================= -->
+
+    <section
+      class="card"
+      id="resultCard"
+    >
+
+      <h2>
+        🎞️ Your Animation Storyboard
+      </h2>
+
+
+      <div
+        id="summary"
+        class="summary"
+      ></div>
+
+
+      <div id="scenes"></div>
+
+
+      <!-- VISUAL GENERATOR -->
+      <button
+        id="visualGeneratorButton"
+        style="display:none;"
+      >
+        🎨 Generate AI Visuals
+      </button>
+
+
+      <div
+        id="visualError"
+        class="visual-error"
+      ></div>
+
+
+      <!-- GENERATED VISUALS -->
+
+      <div
+        id="visualResults"
+        style="display:none;"
+      ></div>
+
+    </section>
+
+
+  </main>
+
+
+  <footer>
+
+    🌿 Axomi-AI —
+    Assamese-first AI animation
+
+  </footer>
+
+
+  <script>
+
+
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
+
+    const createBtn =
+      document.getElementById("createBtn");
+
+    const loading =
+      document.getElementById("loading");
+
+    const errorBox =
+      document.getElementById("error");
+
+    const successBox =
+      document.getElementById("success");
+
+    const resultCard =
+      document.getElementById("resultCard");
+
+    const summaryBox =
+      document.getElementById("summary");
+
+    const scenesBox =
+      document.getElementById("scenes");
+
+    const visualButton =
+      document.getElementById(
+        "visualGeneratorButton"
       );
-    }
 
-    let data;
-
-    try {
-      data = JSON.parse(rawText);
-    } catch (jsonError) {
-
-      throw new Error(
-        "Server did not return valid JSON.\n\n" +
-        rawText.substring(0, 500)
+    const visualResults =
+      document.getElementById(
+        "visualResults"
       );
-    }
 
-    if (!response.ok) {
-      throw new Error(
-        data.error || "Animation generation failed."
+    const visualError =
+      document.getElementById(
+        "visualError"
       );
-    }
 
-    if (!data.success) {
-      throw new Error(
-        data.error || "Animation generation failed."
-      );
-    }
 
-    displayResult(data);
+    /* =====================================================
+       CREATE STORYBOARD
+       ===================================================== */
 
-  } catch (error) {
-
-    console.error(error);
-
-    showError(
-      "❌ " + error.message
+    createBtn.addEventListener(
+      "click",
+      createAnimation
     );
 
-  } finally {
 
-    createBtn.disabled = false;
-    loading.style.display = "none";
-  }
-}
+    async function createAnimation() {
+
+      errorBox.style.display = "none";
+
+      successBox.style.display = "none";
+
+      resultCard.style.display = "none";
+
+      visualButton.style.display = "none";
+
+      visualResults.style.display = "none";
+
+      visualResults.innerHTML = "";
+
+      visualError.style.display = "none";
+
+      const story =
+        document
+          .getElementById("story")
+          .value
+          .trim();
+
+      const style =
+        document
+          .getElementById("style")
+          .value;
+
+      const format =
+        document
+          .getElementById("format")
+          .value;
+
+      const length =
+        document
+          .getElementById("length")
+          .value;
+
+      const voice =
+        document
+          .getElementById("voice")
+          .value;
 
 
-function displayResult(data) {
+      if (!story) {
 
-  successBox.style.display = "block";
-  resultCard.style.display = "block";
+        showError(
+          "Please enter your story first."
+        );
 
-  summaryBox.innerHTML = `
-    <p>
-      <b>Story:</b> ${escapeHTML(data.story || "")}
-    </p>
-
-    <p>
-      <b>Style:</b> ${escapeHTML(data.style || "")}
-    </p>
-
-    <p>
-      <b>Format:</b> ${escapeHTML(data.format || "")}
-    </p>
-
-    <p>
-      <b>Duration:</b> ${escapeHTML(String(data.length || ""))} seconds
-    </p>
-
-    <p>
-      <b>Voice:</b> ${escapeHTML(data.voice || "")}
-    </p>
-
-    <p>
-      <b>${escapeHTML(data.summary || "Storyboard created.")}</b>
-    </p>
-  `;
-
-  scenesBox.innerHTML = "";
-
-  if (!Array.isArray(data.scenes)) {
-    return;
-  }
-
-  data.scenes.forEach((scene, index) => {
-
-    const div = document.createElement("div");
-
-    div.className = "scene";
-
-    div.innerHTML = `
-
-      <h3>
-        🎬 Scene ${index + 1}: 
-        ${escapeHTML(scene.title || "")}
-      </h3>
-
-      <p>
-        ${escapeHTML(scene.description || "")}
-      </p>
-
-      <p>
-        <b>🏷️ Tags:</b>
-        ${escapeHTML(
-          Array.isArray(scene.tags)
-            ? scene.tags.join(", ")
-            : ""
-        )}
-      </p>
-
-      <div class="prompt">
-        <b>🎥 Video Prompt</b><br><br>
-        ${escapeHTML(scene.video_prompt || "")}
-      </div>
-
-      ${
-        scene.voice_line
-        ?
-        `
-        <p>
-          <b>🗣️ Voice:</b><br>
-          ${escapeHTML(scene.voice_line)}
-        </p>
-        `
-        :
-        ""
+        return;
       }
 
-    `;
 
-    scenesBox.appendChild(div);
+      createBtn.disabled = true;
 
-  });
-
-}
+      loading.style.display = "block";
 
 
-function showError(message) {
+      try {
 
-  errorBox.textContent = message;
-  errorBox.style.display = "block";
+        const response = await fetch(
+          "/.netlify/functions/generate",
+          {
+            method: "POST",
 
-}
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              story: story,
+
+              style: style,
+
+              format: format,
+
+              length:
+                Number(length),
+
+              voice: voice
+
+            })
+
+          }
+        );
 
 
-function escapeHTML(value) {
+        const rawText =
+          await response.text();
 
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 
-}
-/* ================================
-   AXOMI-AI VISUAL GENERATOR
-   ================================ */
+        console.log(
+          "AXOMI SERVER RESPONSE:",
+          rawText
+        );
 
-async function generateVisuals(storyboard) {
-  const button = document.getElementById("visualGeneratorButton");
 
-  if (button) {
-    button.disabled = true;
-    button.textContent = "🎨 Creating Assam visuals...";
-  }
+        if (
+          !rawText ||
+          !rawText.trim()
+        ) {
 
-  try {
-    const response = await fetch("/.netlify/functions/images", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        story: storyboard.story || "",
-        style: storyboard.style || "2D cinematic",
-        format: storyboard.format || "9:16",
-        scenes: storyboard.scenes || []
-      })
-    });
+          throw new Error(
+            "The server returned an empty response."
+          );
 
-    const text = await response.text();
+        }
 
-    let data;
 
-    try {
-      data = JSON.parse(text);
-    } catch (error) {
-      throw new Error(
-        "Image AI returned an invalid response. Please check Netlify Functions."
+        let data;
+
+
+        try {
+
+          data =
+            JSON.parse(rawText);
+
+        } catch (jsonError) {
+
+          throw new Error(
+            "Server did not return valid JSON.\n\n" +
+            rawText.substring(0, 800)
+          );
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.error ||
+            "Animation generation failed."
+          );
+
+        }
+
+
+        if (!data.success) {
+
+          throw new Error(
+            data.error ||
+            "Animation generation failed."
+          );
+
+        }
+
+
+        displayResult(data);
+
+      }
+
+
+      catch (error) {
+
+        console.error(
+          "Axomi-AI error:",
+          error
+        );
+
+        showError(
+          "❌ " +
+          error.message
+        );
+
+      }
+
+
+      finally {
+
+        createBtn.disabled = false;
+
+        loading.style.display = "none";
+
+      }
+
+    }
+
+
+    /* =====================================================
+       DISPLAY STORYBOARD
+       ===================================================== */
+
+    function displayResult(data) {
+
+      successBox.style.display =
+        "block";
+
+      resultCard.style.display =
+        "block";
+
+
+      summaryBox.innerHTML = `
+
+        <p>
+          <b>Story:</b>
+          ${escapeHTML(
+            data.story || ""
+          )}
+        </p>
+
+        <p>
+          <b>Style:</b>
+          ${escapeHTML(
+            data.style || ""
+          )}
+        </p>
+
+        <p>
+          <b>Format:</b>
+          ${escapeHTML(
+            data.format || ""
+          )}
+        </p>
+
+        <p>
+          <b>Duration:</b>
+          ${escapeHTML(
+            String(
+              data.length || ""
+            )
+          )}
+          seconds
+        </p>
+
+        <p>
+          <b>Voice:</b>
+          ${escapeHTML(
+            data.voice || ""
+          )}
+        </p>
+
+        <p>
+          <b>
+            ${escapeHTML(
+              data.summary ||
+              "Storyboard created."
+            )}
+          </b>
+        </p>
+
+      `;
+
+
+      scenesBox.innerHTML = "";
+
+
+      if (
+        !Array.isArray(
+          data.scenes
+        )
+      ) {
+
+        scenesBox.innerHTML = `
+
+          <div class="scene">
+
+            <b>
+              ⚠️ No scenes were returned.
+            </b>
+
+          </div>
+
+        `;
+
+      }
+
+      else {
+
+        data.scenes.forEach(
+          function(scene, index) {
+
+            const div =
+              document.createElement(
+                "div"
+              );
+
+
+            div.className =
+              "scene";
+
+
+            const tags =
+              Array.isArray(
+                scene.tags
+              )
+                ? scene.tags.join(
+                    ", "
+                  )
+                : "";
+
+
+            let voiceHTML = "";
+
+
+            if (
+              scene.voice_line
+            ) {
+
+              voiceHTML = `
+
+                <div class="voice-line">
+
+                  <b>
+                    🗣️ Voice
+                  </b>
+
+                  <br>
+
+                  ${escapeHTML(
+                    scene.voice_line
+                  )}
+
+                </div>
+
+              `;
+
+            }
+
+
+            div.innerHTML = `
+
+              <h3>
+
+                🎬 Scene
+                ${index + 1}
+
+                :
+
+                ${escapeHTML(
+                  scene.title || ""
+                )}
+
+              </h3>
+
+
+              <div class="scene-description">
+
+                ${escapeHTML(
+                  scene.description ||
+                  ""
+                )}
+
+              </div>
+
+
+              <p>
+
+                <b>
+                  🏷️ Tags:
+                </b>
+
+                ${escapeHTML(
+                  tags
+                )}
+
+              </p>
+
+
+              <div class="prompt">
+
+                <b>
+                  🎥 Video Prompt
+                </b>
+
+                <br>
+                <br>
+
+                ${escapeHTML(
+                  scene.video_prompt ||
+                  ""
+                )}
+
+              </div>
+
+
+              ${voiceHTML}
+
+            `;
+
+
+            scenesBox.appendChild(
+              div
+            );
+
+          }
+        );
+
+      }
+
+
+      /*
+       * SHOW VISUAL GENERATOR
+       */
+
+      visualButton.style.display =
+        "block";
+
+
+      visualButton.onclick =
+        function() {
+
+          generateVisuals(
+            data
+          );
+
+        };
+
+
+      /*
+       * Scroll to storyboard
+       */
+
+      setTimeout(
+        function() {
+
+          resultCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        },
+        200
       );
+
     }
 
-    if (!response.ok) {
-      throw new Error(data.error || "Image generation failed");
+
+    /* =====================================================
+       GENERATE AI VISUALS
+       ===================================================== */
+
+    async function generateVisuals(
+      storyboard
+    ) {
+
+      visualButton.disabled =
+        true;
+
+      visualButton.textContent =
+        "🎨 Creating Assam visuals...";
+
+
+      visualError.style.display =
+        "none";
+
+
+      visualResults.style.display =
+        "block";
+
+
+      visualResults.innerHTML = `
+
+        <div class="visual-header">
+
+          <h2>
+            🎬 Your AI Visuals
+          </h2>
+
+          <p>
+            🌿 Creating Assam-first
+            animation visuals...
+          </p>
+
+        </div>
+
+        <div class="loading"
+             style="display:block;">
+
+          🧠 AI is generating
+          your scene visuals...
+
+        </div>
+
+      `;
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/.netlify/functions/images",
+            {
+
+              method: "POST",
+
+              headers: {
+
+                "Content-Type":
+                  "application/json"
+
+              },
+
+              body: JSON.stringify({
+
+                story:
+                  storyboard.story ||
+                  "",
+
+                style:
+                  storyboard.style ||
+                  "2D cinematic",
+
+                format:
+                  storyboard.format ||
+                  "9:16",
+
+                scenes:
+                  storyboard.scenes ||
+                  []
+
+              })
+
+            }
+          );
+
+
+        const rawText =
+          await response.text();
+
+
+        console.log(
+          "AXOMI IMAGE RESPONSE:",
+          rawText
+        );
+
+
+        if (
+          !rawText ||
+          !rawText.trim()
+        ) {
+
+          throw new Error(
+            "Image server returned an empty response."
+          );
+
+        }
+
+
+        let data;
+
+
+        try {
+
+          data =
+            JSON.parse(rawText);
+
+        }
+
+        catch (jsonError) {
+
+          throw new Error(
+            "Image AI returned invalid JSON.\n\n" +
+            rawText.substring(
+              0,
+              800
+            )
+          );
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.error ||
+            "Image generation failed."
+          );
+
+        }
+
+
+        displayGeneratedVisuals(
+          data
+        );
+
+      }
+
+
+      catch (error) {
+
+        console.error(
+          "Axomi visual error:",
+          error
+        );
+
+
+        visualResults.style.display =
+          "none";
+
+
+        visualError.style.display =
+          "block";
+
+
+        visualError.textContent =
+          "❌ " +
+          error.message;
+
+      }
+
+
+      finally {
+
+        visualButton.disabled =
+          false;
+
+        visualButton.textContent =
+          "🎨 Generate AI Visuals";
+
+      }
+
     }
 
-    displayGeneratedVisuals(data);
 
-  } catch (error) {
-    console.error("Axomi-AI visual error:", error);
+    /* =====================================================
+       DISPLAY GENERATED IMAGES
+       ===================================================== */
 
-    const box = document.getElementById("visualError");
+    function displayGeneratedVisuals(
+      data
+    ) {
 
-    if (box) {
-      box.style.display = "block";
-      box.textContent = "❌ " + error.message;
+      visualResults.style.display =
+        "block";
+
+
+      visualResults.innerHTML = `
+
+        <div class="visual-header">
+
+          <h2>
+            🎬 Your AI Visuals
+          </h2>
+
+          <p>
+            🌿 Assam-first
+            animation visuals
+          </p>
+
+        </div>
+
+      `;
+
+
+      const images =
+        data.images ||
+        data.results ||
+        [];
+
+
+      if (
+        !Array.isArray(images) ||
+        images.length === 0
+      ) {
+
+        visualResults.innerHTML += `
+
+          <div class="no-images">
+
+            ⚠️ Storyboard created,
+            but the image generator
+            did not return any images.
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      images.forEach(
+        function(item, index) {
+
+
+          const imageUrl =
+            typeof item === "string"
+
+              ? item
+
+              : (
+                  item.url ||
+                  item.image_url ||
+                  item.image ||
+                  ""
+                );
+
+
+          if (!imageUrl) {
+
+            return;
+
+          }
+
+
+          const card =
+            document.createElement(
+              "div"
+            );
+
+
+          card.className =
+            "visual-card";
+
+
+          card.innerHTML = `
+
+            <div class="visual-title">
+
+              🎞️ Scene
+              ${index + 1}
+
+            </div>
+
+
+            <img
+
+              class="visual-image"
+
+              src="${escapeAttribute(
+                imageUrl
+              )}"
+
+              alt="Axomi-AI Assam animation scene ${index + 1}"
+
+              loading="lazy"
+
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+
+            >
+
+
+            <div
+              style="
+                display:none;
+                padding:20px;
+                text-align:center;
+              "
+            >
+
+              ⚠️ Image could not be
+              displayed.
+
+            </div>
+
+
+            <div style="padding:12px;">
+
+              <button
+
+                class="save-button"
+
+                onclick="downloadAxomiImage(
+                  '${escapeJS(
+                    imageUrl
+                  )}',
+                  ${index + 1}
+                )"
+
+              >
+
+                ⬇️ Save Scene
+                ${index + 1}
+
+              </button>
+
+            </div>
+
+          `;
+
+
+          visualResults.appendChild(
+            card
+          );
+
+        }
+      );
+
+
+      setTimeout(
+        function() {
+
+          visualResults.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        },
+        300
+      );
+
     }
 
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = "🎨 Generate AI Visuals";
+
+    /* =====================================================
+       DOWNLOAD IMAGE
+       ===================================================== */
+
+    async function downloadAxomiImage(
+      url,
+      number
+    ) {
+
+      try {
+
+        const response =
+          await fetch(url);
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Could not download image."
+          );
+
+        }
+
+
+        const blob =
+          await response.blob();
+
+
+        const objectUrl =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+
+        link.href =
+          objectUrl;
+
+
+        link.download =
+          `axomi-ai-scene-${number}.png`;
+
+
+        document.body.appendChild(
+          link
+        );
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        URL.revokeObjectURL(
+          objectUrl
+        );
+
+      }
+
+
+      catch (error) {
+
+        /*
+         * If browser blocks the download,
+         * open image in a new tab.
+         */
+
+        window.open(
+          url,
+          "_blank"
+        );
+
+      }
+
     }
-  }
-}
 
 
-/* ================================
-   DISPLAY GENERATED IMAGES
-   ================================ */
+    /* =====================================================
+       ERROR
+       ===================================================== */
 
-function displayGeneratedVisuals(data) {
+    function showError(
+      message
+    ) {
 
-  let container = document.getElementById("visualResults");
+      errorBox.textContent =
+        message;
 
-  if (!container) {
+      errorBox.style.display =
+        "block";
 
-    container = document.createElement("div");
+      resultCard.style.display =
+        "none";
 
-    container.id = "visualResults";
-
-    container.style.cssText = `
-      margin-top:20px;
-      padding:20px;
-      background:#ffffff;
-      border-radius:18px;
-      box-shadow:0 4px 18px rgba(0,0,0,.08);
-    `;
-
-    const button = document.getElementById("visualGeneratorButton");
-
-    if (button) {
-      button.parentElement.appendChild(container);
-    } else {
-      document.body.appendChild(container);
     }
-  }
-
-  container.innerHTML = `
-    <h2>🎬 Your AI Visuals</h2>
-    <p>🌿 Assam-first animation visuals</p>
-  `;
-
-  const images = data.images || data.results || [];
-
-  if (!images.length) {
-
-    container.innerHTML += `
-      <div style="
-        padding:15px;
-        background:#fff7d6;
-        border-radius:12px;
-        margin-top:10px;
-      ">
-        ⚠️ Storyboard created, but no images were returned.
-      </div>
-    `;
-
-    return;
-  }
-
-  images.forEach((item, index) => {
-
-    const imageUrl =
-      typeof item === "string"
-        ? item
-        : item.url || item.image_url || item.image || "";
-
-    if (!imageUrl) return;
-
-    const card = document.createElement("div");
-
-    card.style.cssText = `
-      margin-top:20px;
-      border:1px solid #ddd;
-      border-radius:16px;
-      overflow:hidden;
-      background:#fafafa;
-    `;
-
-    card.innerHTML = `
-      <div style="padding:12px;font-weight:bold;">
-        🎞️ Scene ${index + 1}
-      </div>
-
-      <img
-        src="${imageUrl}"
-        alt="Axomi-AI Assam animation scene ${index + 1}"
-        style="
-          width:100%;
-          display:block;
-          background:#eee;
-        "
-      />
-
-      <div style="padding:12px;">
-        <button
-          onclick="downloadAxomiImage('${imageUrl}', ${index + 1})"
-          style="
-            width:100%;
-            padding:12px;
-            border:0;
-            border-radius:10px;
-            background:#111;
-            color:white;
-            font-size:15px;
-          "
-        >
-          ⬇️ Save Scene ${index + 1}
-        </button>
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-}
 
 
-/* ================================
-   DOWNLOAD IMAGE
-   ================================ */
+    /* =====================================================
+       HTML ESCAPE
+       ===================================================== */
 
-async function downloadAxomiImage(url, number) {
+    function escapeHTML(
+      value
+    ) {
 
-  try {
+      return String(
+        value
+      )
 
-    const response = await fetch(url);
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
 
-    const blob = await response.blob();
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
 
-    const objectUrl = URL.createObjectURL(blob);
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
 
-    const link = document.createElement("a");
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
 
-    link.href = objectUrl;
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
 
-    link.download = `axomi-ai-scene-${number}.png`;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(objectUrl);
-
-  } catch (error) {
-
-    window.open(url, "_blank");
-
-  }
-}
-
-
-/* ================================
-   ADD VISUAL GENERATOR BUTTON
-   ================================ */
-
-function addVisualGeneratorButton(storyboard) {
-
-  let oldButton =
-    document.getElementById("visualGeneratorButton");
-
-  if (oldButton) {
-    oldButton.remove();
-  }
-
-  const button = document.createElement("button");
-
-  button.id = "visualGeneratorButton";
-
-  button.textContent = "🎨 Generate AI Visuals";
-
-  button.style.cssText = `
-    width:100%;
-    margin-top:20px;
-    padding:16px;
-    border:0;
-    border-radius:14px;
-    background:#111;
-    color:white;
-    font-size:17px;
-    font-weight:bold;
-    cursor:pointer;
-  `;
-
-  button.onclick = function () {
-    generateVisuals(storyboard);
-  };
-
-  const error = document.createElement("div");
-
-  error.id = "visualError";
-
-  error.style.cssText = `
-    display:none;
-    margin-top:10px;
-    padding:12px;
-    border-radius:10px;
-    background:#ffe5e5;
-    color:#b00020;
-  `;
-
-  const animationArea =
-    document.getElementById("scenesBox") ||
-    document.querySelector(".scenes") ||
-    document.body;
-
-  animationArea.appendChild(button);
-  animationArea.appendChild(error);
-}
+    }
 
 
-/* ================================
-   CONNECT TO EXISTING STORYBOARD
-   ================================ */
+    /* =====================================================
+       ATTRIBUTE ESCAPE
+       ===================================================== */
 
-const originalDisplayStoryboard =
-  typeof displayStoryboard === "function"
-    ? displayStoryboard
-    : null;
+    function escapeAttribute(
+      value
+    ) {
 
-if (originalDisplayStoryboard) {
+      return String(
+        value
+      )
 
-  window.displayStoryboard = function(data) {
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
 
-    originalDisplayStoryboard(data);
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
 
-    setTimeout(function () {
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
 
-      addVisualGeneratorButton({
-        story: data.story || data.summary || "",
-        style: data.style || "2D cinematic",
-        format: data.format || "9:16",
-        scenes: data.scenes || []
-      });
+        .replaceAll(
+          ">",
+          "&gt;"
+        );
 
-    }, 300);
+    }
 
-  };
-}
-</script>
+
+    /* =====================================================
+       JAVASCRIPT STRING ESCAPE
+       ===================================================== */
+
+    function escapeJS(
+      value
+    ) {
+
+      return String(
+        value
+      )
+
+        .replaceAll(
+          "\\",
+          "\\\\"
+        )
+
+        .replaceAll(
+          "'",
+          "\\'"
+        )
+
+        .replaceAll(
+          "\n",
+          "\\n"
+        )
+
+        .replaceAll(
+          "\r",
+          "\\r"
+        );
+
+    }
+
+
+  </script>
 
 </body>
 </html>
