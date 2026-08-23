@@ -1,52 +1,114 @@
 const headers = {
-  "Content-Type": "application/json",
+  "Content-Type": "application/json; charset=utf-8",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-function response(statusCode, data) {
+
+function jsonResponse(statusCode, data) {
+
   return {
-    statusCode,
-    headers,
+    statusCode: statusCode,
+    headers: headers,
     body: JSON.stringify(data)
   };
+
 }
 
-exports.handler = async (event) => {
-  // Allow browser preflight
+
+exports.handler = async function(event) {
+
+  /*
+    OPTIONS request from browser
+  */
+
   if (event.httpMethod === "OPTIONS") {
-    return response(204, {});
+
+    return {
+      statusCode: 204,
+      headers: headers,
+      body: ""
+    };
+
   }
 
-  // Only POST is allowed
+
+  /*
+    Only POST is allowed
+  */
+
   if (event.httpMethod !== "POST") {
-    return response(405, {
+
+    return jsonResponse(405, {
+      success: false,
       error: "POST request required."
     });
+
   }
 
+
   try {
-    const body = JSON.parse(event.body || "{}");
+
+    /*
+      Read request body
+    */
+
+    let body = {};
+
+    try {
+
+      body = JSON.parse(event.body || "{}");
+
+    } catch (error) {
+
+      return jsonResponse(400, {
+        success: false,
+        error: "Invalid JSON request."
+      });
+
+    }
+
 
     const story = String(body.story || "").trim();
 
     if (!story) {
-      return response(400, {
+
+      return jsonResponse(400, {
+        success: false,
         error: "Please enter a story."
       });
+
     }
 
-    const style = body.style || "2D cinematic";
-    const format = body.format || "9:16";
-    const length = Number(body.length) || 30;
-    const voice = body.voice || "Assamese male";
 
-    // DEMO MODE
-    // This guarantees valid JSON even when no AI API key is connected.
-    const sceneCount =
-      length <= 30 ? 4 :
-      length <= 60 ? 6 : 8;
+    const style =
+      String(body.style || "2D cinematic");
+
+    const format =
+      String(body.format || "9:16");
+
+    const length =
+      Number(body.length || 30);
+
+    const voice =
+      String(body.voice || "Assamese male");
+
+
+    /*
+      Decide number of scenes
+    */
+
+    let sceneCount = 4;
+
+    if (length > 30 && length <= 60) {
+      sceneCount = 6;
+    }
+
+    if (length > 60) {
+      sceneCount = 8;
+    }
+
 
     const sceneNames = [
       "Opening",
@@ -59,17 +121,25 @@ exports.handler = async (event) => {
       "Final shot"
     ];
 
+
     const scenes = [];
 
+
     for (let i = 0; i < sceneCount; i++) {
+
       scenes.push({
-        title: sceneNames[i],
+
+        title:
+          sceneNames[i] || `Scene ${i + 1}`,
+
         description:
-          `Scene ${i + 1} of an Assamese story. ` +
-          `Keep the same characters, clothing and environment throughout.`,
+          `Scene ${i + 1} of the story. ` +
+          `Keep the same characters, faces, clothing, ` +
+          `location and visual style throughout the animation.`,
 
         tags: [
           "Assam",
+          "Assamese",
           "Assamese culture",
           "consistent character",
           style,
@@ -77,36 +147,76 @@ exports.handler = async (event) => {
         ],
 
         video_prompt:
-          `${style} animation in authentic Assam. ` +
-          `Assamese people, Assamese environment, respectful Assamese culture, ` +
-          `Mekhela Sador or traditional Assamese clothing where appropriate. ` +
-          `Tea gardens, paddy fields, bamboo houses, forests or Brahmaputra ` +
-          `when suitable. Keep the character consistent. ` +
-          `Story: ${story}. Scene ${i + 1}.`,
+          `${style} animation. ` +
+          `Authentic Assamese people and environment. ` +
+          `Respectful Assamese culture. ` +
+          `Use Mekhela Sador or traditional Assamese clothing ` +
+          `where appropriate. ` +
+          `Assam village, tea garden, paddy field, bamboo house, ` +
+          `forest or Brahmaputra environment when appropriate. ` +
+          `Natural Assamese appearance. ` +
+          `Consistent character design and face. ` +
+          `Cinematic movement. ` +
+          `Scene ${i + 1}. ` +
+          `Story: ${story}`,
 
         voice_line:
           voice === "No voice"
             ? ""
-            : `Narration in ${voice}: ${story}`
+            : `Narration in ${voice} for scene ${i + 1}. Story: ${story}`
+
       });
+
     }
 
-    return response(200, {
+
+    /*
+      DEMO MODE
+
+      This is deliberately kept independent of an external AI API.
+      Therefore the app can be tested immediately.
+    */
+
+    return jsonResponse(200, {
+
       success: true,
+
       demo: true,
-      summary: `${style} Assamese animation`,
-      story,
-      style,
-      format,
-      length,
-      voice,
-      scenes
+
+      message:
+        "Axomi-AI storyboard generated successfully.",
+
+      story: story,
+
+      style: style,
+
+      format: format,
+
+      length: length,
+
+      voice: voice,
+
+      summary:
+        `${style} Assamese animation storyboard`,
+
+      scenes: scenes
+
     });
 
+
   } catch (error) {
-    return response(500, {
+
+    console.error("GENERATE ERROR:", error);
+
+    return jsonResponse(500, {
+
       success: false,
-      error: error.message || "Generation failed."
+
+      error:
+        error.message || "Internal server error."
+
     });
+
   }
+
 };
