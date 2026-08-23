@@ -1,58 +1,69 @@
 const headers = {
-  "Content-Type": "application/json; charset=UTF-8",
+  "Content-Type": "application/json; charset=utf-8",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-function reply(status, data) {
+function response(statusCode, data) {
   return {
-    statusCode: status,
+    statusCode,
     headers,
     body: JSON.stringify(data)
   };
 }
 
-function imageSize(format) {
-  if (String(format).includes("16:9")) {
+function getSize(format) {
+  if (format === "16:9") {
     return { width: 1280, height: 720 };
   }
 
-  if (String(format).includes("1:1")) {
+  if (format === "1:1") {
     return { width: 1024, height: 1024 };
   }
 
   return { width: 768, height: 1365 };
 }
 
-function makePrompt(scene, options) {
-  return [
-    options.style || "2D cinematic animation",
-    "high quality animated film frame",
-    "authentic Assam, India",
-    "authentic Assamese people",
-    "respectful Assamese culture",
-    "consistent character design",
-    "consistent clothing and face",
-    "Mekhela Sador or traditional Assamese clothing when appropriate",
-    "natural Assamese environment",
-    "cinematic lighting",
-    "detailed background",
-    "beautiful composition",
-    "no text",
-    "no watermark",
-    "no logo",
-    "",
-    "STORY:",
-    options.story || "",
-    "",
-    "SCENE:",
-    scene.description || scene.video_prompt || scene.title || ""
-  ].join("\n");
+function buildPrompt(scene, story, style) {
+  return `
+Create a high-quality animation frame.
+
+STYLE:
+${style}
+
+STORY:
+${story}
+
+SCENE:
+${scene.title || ""}
+${scene.description || ""}
+${scene.video_prompt || ""}
+
+IMPORTANT:
+- Set the story in Assam, India.
+- Use authentic Assamese people.
+- Respect Assamese culture.
+- Use Mekhela Sador or traditional Assamese clothing when appropriate.
+- Use realistic Assam environments.
+- Assam villages, tea gardens, paddy fields, bamboo houses,
+  forests and the Brahmaputra may be used when appropriate.
+- Keep the same characters, faces, clothing and appearance
+  throughout all scenes.
+- Cinematic composition.
+- Natural expressions.
+- Detailed environment.
+- High-quality animation-film appearance.
+- No text.
+- No subtitles.
+- No watermark.
+- No logo.
+`;
 }
 
-exports.handler = async function(event) {
+exports.handler = async function (event) {
 
+  // OPTIONS / CORS
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 204,
@@ -61,8 +72,9 @@ exports.handler = async function(event) {
     };
   }
 
+  // Only POST is allowed
   if (event.httpMethod !== "POST") {
-    return reply(405, {
+    return response(405, {
       success: false,
       error: "POST request required."
     });
@@ -70,12 +82,13 @@ exports.handler = async function(event) {
 
   try {
 
-    let body;
+    // Read JSON safely
+    let body = {};
 
     try {
       body = JSON.parse(event.body || "{}");
     } catch (error) {
-      return reply(400, {
+      return response(400, {
         success: false,
         error: "Invalid JSON request."
       });
@@ -84,26 +97,44 @@ exports.handler = async function(event) {
     const story = String(body.story || "").trim();
     const style = String(body.style || "2D cinematic");
     const format = String(body.format || "9:16");
-    const scenes = Array.isArray(body.scenes) ? body.scenes : [];
+    const scenes = Array.isArray(body.scenes)
+      ? body.scenes
+      : [];
 
-    if (!scenes.length) {
-      return reply(400, {
+    if (!story) {
+      return response(400, {
         success: false,
-        error: "No scenes were provided."
+        error: "Story is required."
       });
     }
+
+    if (!scenes.length) {
+      return response(400, {
+        success: false,
+        error: "No scenes were supplied."
+      });
+    }
+
+    /*
+      IMPORTANT:
+      The API key is NOT written here.
+
+      Add this variable in:
+      Netlify → Project configuration →
+      Environment variables
+    */
 
     const apiKey = process.env.POLLINATIONS_API_KEY;
 
     if (!apiKey) {
-      return reply(500, {
+      return response(500, {
         success: false,
         error:
-          "POLLINATIONS_API_KEY is missing. Add it in Netlify Environment Variables."
+          "POLLINATIONS_API_KEY is not configured in Netlify."
       });
     }
 
-    const size = imageSize(format);
+    const size = getSize(format);
 
     const images = [];
 
@@ -111,45 +142,58 @@ exports.handler = async function(event) {
 
       const scene = scenes[i];
 
-      const prompt = makePrompt(scene, {
+      const prompt = buildPrompt(
+        scene,
         story,
-        style,
-        format
-      });
+        style
+      );
 
-      const encodedPrompt = encodeURIComponent(prompt);
+      const encodedPrompt =
+        encodeURIComponent(prompt);
 
-      const url =
+      const imageUrl =
         "https://gen.pollinations.ai/image/" +
         encodedPrompt +
         "?model=flux" +
         "&width=" + size.width +
-        "&height=" + size.height;
+        "&height=" + size.height +
+        "&nologo=true";
 
       images.push({
         scene: i + 1,
-        title: scene.title || `Scene ${i + 1}`,
-        prompt,
-        url,
+        title:
+          scene.title ||
+          "Scene " + (i + 1),
+
+        prompt: prompt,
+
+        imageUrl: imageUrl,
+
         provider: "Pollinations"
       });
     }
 
-    return reply(200, {
+    return response(200, {
       success: true,
       provider: "Pollinations",
-      style,
-      format,
-      images
+      story: story,
+      style: style,
+      format: format,
+      images: images
     });
 
   } catch (error) {
 
-    console.error("IMAGE FUNCTION ERROR:", error);
+    console.error(
+      "Axomi-AI image error:",
+      error
+    );
 
-    return reply(500, {
+    return response(500, {
       success: false,
-      error: error.message || "Image generation failed."
+      error:
+        error.message ||
+        "Image generation failed."
     });
   }
 };
