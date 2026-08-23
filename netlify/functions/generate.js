@@ -1,20 +1,9 @@
-
 const headers = {
-  "Content-Type": "application/json; charset=utf-8",
+  "Content-Type": "application/json; charset=UTF-8",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
-
-const ASSAM_RULES = `
-Create content rooted in Assam, India.
-Use authentic Assamese people and respectful Assamese culture.
-Prefer Mekhela Sador for women and traditional Assamese dhoti/kurta where appropriate.
-Use realistic Assam environments such as villages, tea gardens, paddy fields,
-bamboo houses, forests and the Brahmaputra.
-Keep character faces, clothing and locations consistent between scenes.
-Do not use stereotypical or disrespectful representations.
-`;
 
 function response(statusCode, data) {
   return {
@@ -24,8 +13,8 @@ function response(statusCode, data) {
   };
 }
 
-function makeDemo(story, options) {
-  const sceneCount =
+function makeStoryboard(story, options) {
+  const count =
     options.length <= 30 ? 4 :
     options.length <= 60 ? 6 : 8;
 
@@ -33,7 +22,7 @@ function makeDemo(story, options) {
     "Opening",
     "The Journey",
     "A Discovery",
-    "The Turning Point",
+    "Turning Point",
     "Emotional Moment",
     "Resolution",
     "Celebration",
@@ -42,14 +31,11 @@ function makeDemo(story, options) {
 
   const scenes = [];
 
-  for (let i = 0; i < sceneCount; i++) {
+  for (let i = 0; i < count; i++) {
     scenes.push({
-      scene: i + 1,
-      title: titles[i] || `Scene ${i + 1}`,
-
+      title: titles[i],
       description:
-        `Scene ${i + 1} of the story. Keep the same characters, ` +
-        `faces, clothing, environment and visual style.`,
+        `Scene ${i + 1} of the story. Keep the same characters, faces, clothing, environment and visual style throughout the animation.`,
 
       tags: [
         "Assam",
@@ -60,11 +46,15 @@ function makeDemo(story, options) {
       ],
 
       video_prompt:
-        `${options.style} animation. ${ASSAM_RULES}
-        Story: ${story}
-        Scene ${i + 1}.
-        Maintain identical character appearance and clothing.
-        Cinematic camera movement and natural expressions.`,
+        `${options.style} animation. ` +
+        `Create content rooted in Assam, India. ` +
+        `Use authentic Assamese people and respectful Assamese culture. ` +
+        `Prefer Mekhela Sador or traditional Assamese dhoti/kurta where appropriate. ` +
+        `Use realistic Assam environments such as villages, tea gardens, ` +
+        `paddy fields, bamboo houses, forests and the Brahmaputra. ` +
+        `Keep characters visually consistent between scenes. ` +
+        `Cinematic camera movement and natural expressions. ` +
+        `Scene ${i + 1}: ${story}`,
 
       voice_line:
         options.voice === "No voice"
@@ -76,145 +66,19 @@ function makeDemo(story, options) {
   return {
     success: true,
     demo: true,
-    summary: `Assam-first ${options.style} animation`,
-    story,
+    story: story,
+    summary: `${options.style} Assam-first animation storyboard`,
     style: options.style,
     format: options.format,
     duration: options.length,
     voice: options.voice,
-    scenes
+    scenes: scenes
   };
 }
 
-async function generateWithAI(story, options) {
-  const apiKey = process.env.OPENAI_API_KEY;
+exports.handler = async function(event) {
 
-  if (!apiKey) {
-    return null;
-  }
-
-  const prompt = `
-Create a professional animation storyboard.
-
-STORY:
-${story}
-
-STYLE:
-${options.style}
-
-VIDEO FORMAT:
-${options.format}
-
-DURATION:
-${options.length} seconds
-
-VOICE:
-${options.voice}
-
-${ASSAM_RULES}
-
-Return ONLY valid JSON.
-
-Required structure:
-
-{
-  "summary": "string",
-  "scenes": [
-    {
-      "scene": 1,
-      "title": "string",
-      "description": "string",
-      "tags": ["string"],
-      "video_prompt": "string",
-      "voice_line": "string"
-    }
-  ]
-}
-
-Create enough scenes to cover the complete story.
-`;
-
-  const apiResponse = await fetch(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-        temperature: 0.7,
-
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are Axomi-AI, a professional animation director specializing in Assamese stories."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
-      })
-    }
-  );
-
-  const text = await apiResponse.text();
-
-  if (!apiResponse.ok) {
-    throw new Error(
-      `AI provider returned ${apiResponse.status}: ${text.slice(0, 300)}`
-    );
-  }
-
-  let data;
-
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("AI provider returned invalid JSON.");
-  }
-
-  let content =
-    data?.choices?.[0]?.message?.content || "";
-
-  content = content
-    .replace(/^```json/i, "")
-    .replace(/^```/i, "")
-    .replace(/```$/i, "")
-    .trim();
-
-  if (!content) {
-    throw new Error("AI returned an empty response.");
-  }
-
-  let result;
-
-  try {
-    result = JSON.parse(content);
-  } catch {
-    throw new Error("AI storyboard was not valid JSON.");
-  }
-
-  return {
-    success: true,
-    demo: false,
-    story,
-    style: options.style,
-    format: options.format,
-    duration: options.length,
-    voice: options.voice,
-    summary: result.summary || "Animation storyboard created.",
-    scenes: Array.isArray(result.scenes) ? result.scenes : []
-  };
-}
-
-exports.handler = async function (event) {
-  // CORS
+  // Handle browser preflight
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 204,
@@ -232,21 +96,16 @@ exports.handler = async function (event) {
   }
 
   try {
-    if (!event.body) {
-      return response(400, {
-        success: false,
-        error: "Request body is empty."
-      });
-    }
 
-    let body;
+    // Safely read request body
+    let body = {};
 
     try {
-      body = JSON.parse(event.body);
-    } catch {
+      body = JSON.parse(event.body || "{}");
+    } catch (err) {
       return response(400, {
         success: false,
-        error: "Request body must be valid JSON."
+        error: "Request body is not valid JSON."
       });
     }
 
@@ -255,7 +114,7 @@ exports.handler = async function (event) {
     if (!story) {
       return response(400, {
         success: false,
-        error: "Please enter a story."
+        error: "Story is required."
       });
     }
 
@@ -266,29 +125,31 @@ exports.handler = async function (event) {
       voice: body.voice || "Assamese male"
     };
 
-    let result;
+    /*
+      FIRST TEST:
+      We return a guaranteed valid storyboard.
 
-    try {
-      result = await generateWithAI(story, options);
-    } catch (aiError) {
-      console.error("AI ERROR:", aiError);
+      This proves that:
+      Browser → Netlify → generate.js → Browser
 
-      // Do not break the app if the AI provider fails.
-      result = null;
-    }
+      is working correctly.
 
-    if (!result) {
-      result = makeDemo(story, options);
-    }
+      We will connect the real AI providers AFTER this test passes.
+    */
+
+    const result = makeStoryboard(story, options);
 
     return response(200, result);
 
   } catch (error) {
-    console.error("FUNCTION ERROR:", error);
+
+    console.error("GENERATE FUNCTION ERROR:", error);
 
     return response(500, {
       success: false,
-      error: error.message || "Unknown server error."
+      error: error && error.message
+        ? error.message
+        : "Unknown server error."
     });
   }
 };
