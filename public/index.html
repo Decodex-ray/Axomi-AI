@@ -1,21 +1,483 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Axomi-AI</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#f4f5f7;color:#171717}header{background:#111;color:white;padding:18px}.logo{font-size:25px;font-weight:800}.tag{color:#bbb;font-size:12px}main{max-width:900px;margin:auto;padding:14px}.card{background:white;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 2px 12px #0001}textarea,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font:inherit}textarea{min-height:130px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.chip,.badge{background:#f1f1f1;border-radius:999px;padding:7px 10px;font-size:12px}.lock{background:#fff7df;border:1px solid #edd27a;padding:10px;border-radius:12px;font-size:13px}button{border:0;border-radius:12px;padding:13px;font-weight:700}.primary{width:100%;background:#111;color:#fff;font-size:16px}.scene{border:1px solid #eee;border-radius:14px;padding:13px;margin:10px 0}.muted{color:#666;font-size:13px}.progress{height:8px;background:#eee;border-radius:99px;margin-top:10px}.bar{height:100%;width:0;background:#111;border-radius:99px}@media(max-width:600px){.row{grid-template-columns:1fr}}</style></head>
-<body><header><div class="logo">🇮🇳 Axomi-AI</div><div class="tag">Assam-first AI animation studio</div></header>
-<main><section class="card"><h2>🎬 Create an animation</h2>
-<p class="muted">Describe your story and Axomi-AI creates an Assam-first storyboard.</p>
-<textarea id="story" placeholder="Example: এজন ল'ৰাই অসমৰ এখন গাঁৱত এটা হেৰাই যোৱা কুকুৰ বিচাৰি পালে।"></textarea>
-<div class="chips"><span class="chip">🌿 Assam environment</span><span class="chip">👘 Assamese attire</span><span class="chip">🪘 Assamese culture</span><span class="chip">🗣️ Assamese voice</span></div>
-<div class="lock">🔒 Axomi style automatically prioritizes authentic Assamese people, clothing, places and culture.</div>
-<div class="row" style="margin-top:12px"><select id="style"><option>2D cinematic</option><option>3D cartoon</option><option>Storybook</option><option>Anime-inspired</option></select><select id="format"><option value="9:16">9:16 Shorts/Reels</option><option value="16:9">16:9 YouTube</option><option value="1:1">1:1 Square</option></select></div>
-<div class="row" style="margin-top:10px"><select id="length"><option value="30">30 seconds</option><option value="60">1 minute</option><option value="120">2 minutes</option><option value="180">3 minutes</option></select><select id="voice"><option>Assamese male</option><option>Assamese female</option><option>English</option><option>No voice</option></select></div>
-<button class="primary" id="go" style="margin-top:14px">✨ Create My Animation</button><div id="status" class="muted"></div><div class="progress"><div id="bar" class="bar"></div></div></section>
-<section class="card" id="result" hidden><h2>🎞️ Storyboard</h2><div id="summary" class="muted"></div><div id="scenes"></div></section>
-<section class="card"><h2>🧠 Multi-AI architecture</h2><p class="muted">The app is ready to connect separate text, image, video, voice, music and lip-sync providers without exposing API keys in the browser.</p></section></main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Axomi-AI — Assamese AI Animation</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f7;
+      color: #111;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      padding: 22px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: .8;
+    }
+
+    .container {
+      width: 94%;
+      max-width: 850px;
+      margin: 22px auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 8px;
+    }
+
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 16px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .chip {
+      background: #f1f1f1;
+      border-radius: 30px;
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+
+    .assam-box {
+      background: #fff7d6;
+      border: 2px solid #ead477;
+      border-radius: 18px;
+      padding: 17px;
+      margin: 18px 0;
+      line-height: 1.5;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      padding: 17px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #createBtn {
+      background: #111;
+      color: white;
+      margin-top: 20px;
+    }
+
+    #createBtn:disabled {
+      opacity: .6;
+    }
+
+    .error {
+      color: #d00000;
+      background: #ffe7e7;
+      padding: 13px;
+      border-radius: 12px;
+      margin-top: 15px;
+      display: none;
+      white-space: pre-wrap;
+    }
+
+    .success {
+      color: #08752d;
+      background: #e7faed;
+      padding: 13px;
+      border-radius: 12px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .scene {
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 17px;
+      margin-top: 14px;
+    }
+
+    .scene h3 {
+      margin-top: 0;
+    }
+
+    .prompt {
+      background: #f5f5f5;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌿 Axomi-AI</h1>
+  <p>AI Animation Studio for Assamese Stories</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+
+    <h2>🎬 Create Your Animation</h2>
+
+    <label for="story">Your Story</label>
+
+    <textarea
+      id="story"
+      placeholder="Write your story in Assamese or English..."
+    ></textarea>
+
+    <div class="chips">
+      <div class="chip">🌿 Assam environment</div>
+      <div class="chip">👘 Assamese attire</div>
+      <div class="chip">🥁 Assamese culture</div>
+      <div class="chip">🗣️ Assamese voice</div>
+    </div>
+
+    <div class="assam-box">
+      🔒 <b>Axomi Style</b><br>
+      Automatically prioritizes authentic Assamese people,
+      clothing, places, environment and culture.
+    </div>
+
+    <label for="style">🎨 Animation Style</label>
+
+    <select id="style">
+      <option>2D cinematic</option>
+      <option>2D cartoon</option>
+      <option>Anime</option>
+      <option>Storybook</option>
+      <option>3D cinematic</option>
+      <option>Watercolor</option>
+    </select>
+
+    <label for="format">📱 Video Format</label>
+
+    <select id="format">
+      <option value="9:16">9:16 Shorts/Reels</option>
+      <option value="16:9">16:9 YouTube</option>
+      <option value="1:1">1:1 Square</option>
+    </select>
+
+    <label for="length">⏱️ Duration</label>
+
+    <select id="length">
+      <option value="30">30 seconds</option>
+      <option value="60">60 seconds</option>
+      <option value="90">90 seconds</option>
+      <option value="120">2 minutes</option>
+    </select>
+
+    <label for="voice">🗣️ Voice</label>
+
+    <select id="voice">
+      <option>Assamese male</option>
+      <option>Assamese female</option>
+      <option>English male</option>
+      <option>English female</option>
+      <option>No voice</option>
+    </select>
+
+    <button id="createBtn">
+      ✨ Create My Animation
+    </button>
+
+    <div id="loading" class="loading">
+      🧠 Axomi-AI is creating your storyboard...
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <div id="success" class="success">
+      ✅ Animation storyboard created successfully!
+    </div>
+
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+
+    <h2>🎞️ Your Animation</h2>
+
+    <div id="summary"></div>
+
+    <div id="scenes"></div>
+
+  </div>
+
+</div>
+
 <script>
-let last=null;const e=id=>document.getElementById(id);
-e("go").onclick=async()=>{let story=e("story").value.trim();if(!story)return alert("Write your story first.");e("go").disabled=true;e("status").textContent="Creating…";e("bar").style.width="30%";
-try{let r=await fetch("/.netlify/functions/axomi",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({story,style:e("style").value,format:e("format").value,length:+e("length").value,voice:e("voice").value})});let d=await r.json();if(!r.ok)throw Error(d.error);last=d;e("bar").style.width="100%";e("status").textContent=d.demo?"Storyboard ready (demo mode). Add an AI key for live AI.":"AI storyboard ready.";e("summary").textContent=d.summary||"";e("scenes").innerHTML=(d.scenes||[]).map((s,i)=>'<div class="scene"><b>Scene '+(i+1)+': '+x(s.title)+'</b><p class="muted">'+x(s.description)+'</p><div>'+((s.tags||[]).map(t=>'<span class="badge">'+x(t)+'</span>').join(""))+'</div><p class="muted">🎥 '+x(s.video_prompt)+'</p><p class="muted">🗣️ '+x(s.voice_line)+'</p></div>').join("");e("result").hidden=false;}catch(err){e("status").textContent="❌ "+err.message;e("bar").style.width="0"}e("go").disabled=false};
-function x(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-</script></body></html>
+
+const createBtn = document.getElementById("createBtn");
+const loading = document.getElementById("loading");
+const errorBox = document.getElementById("error");
+const successBox = document.getElementById("success");
+
+const resultCard = document.getElementById("resultCard");
+const summaryBox = document.getElementById("summary");
+const scenesBox = document.getElementById("scenes");
+
+createBtn.addEventListener("click", createAnimation);
+
+async function createAnimation() {
+
+  errorBox.style.display = "none";
+  successBox.style.display = "none";
+  resultCard.style.display = "none";
+
+  const story = document.getElementById("story").value.trim();
+  const style = document.getElementById("style").value;
+  const format = document.getElementById("format").value;
+  const length = document.getElementById("length").value;
+  const voice = document.getElementById("voice").value;
+
+  if (!story) {
+    showError("Please enter your story first.");
+    return;
+  }
+
+  createBtn.disabled = true;
+  loading.style.display = "block";
+
+  try {
+
+    const response = await fetch("/.netlify/functions/generate", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        story: story,
+        style: style,
+        format: format,
+        length: Number(length),
+        voice: voice
+      })
+    });
+
+    /*
+      IMPORTANT:
+      We read text first instead of immediately calling response.json().
+      This prevents the "Unexpected end of JSON input" problem.
+    */
+
+    const rawText = await response.text();
+
+    console.log("SERVER RESPONSE:", rawText);
+
+    if (!rawText || !rawText.trim()) {
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(rawText);
+    } catch (jsonError) {
+
+      throw new Error(
+        "Server did not return valid JSON.\n\n" +
+        rawText.substring(0, 500)
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Animation generation failed."
+      );
+    }
+
+    if (!data.success) {
+      throw new Error(
+        data.error || "Animation generation failed."
+      );
+    }
+
+    displayResult(data);
+
+  } catch (error) {
+
+    console.error(error);
+
+    showError(
+      "❌ " + error.message
+    );
+
+  } finally {
+
+    createBtn.disabled = false;
+    loading.style.display = "none";
+  }
+}
+
+
+function displayResult(data) {
+
+  successBox.style.display = "block";
+  resultCard.style.display = "block";
+
+  summaryBox.innerHTML = `
+    <p>
+      <b>Story:</b> ${escapeHTML(data.story || "")}
+    </p>
+
+    <p>
+      <b>Style:</b> ${escapeHTML(data.style || "")}
+    </p>
+
+    <p>
+      <b>Format:</b> ${escapeHTML(data.format || "")}
+    </p>
+
+    <p>
+      <b>Duration:</b> ${escapeHTML(String(data.length || ""))} seconds
+    </p>
+
+    <p>
+      <b>Voice:</b> ${escapeHTML(data.voice || "")}
+    </p>
+
+    <p>
+      <b>${escapeHTML(data.summary || "Storyboard created.")}</b>
+    </p>
+  `;
+
+  scenesBox.innerHTML = "";
+
+  if (!Array.isArray(data.scenes)) {
+    return;
+  }
+
+  data.scenes.forEach((scene, index) => {
+
+    const div = document.createElement("div");
+
+    div.className = "scene";
+
+    div.innerHTML = `
+
+      <h3>
+        🎬 Scene ${index + 1}: 
+        ${escapeHTML(scene.title || "")}
+      </h3>
+
+      <p>
+        ${escapeHTML(scene.description || "")}
+      </p>
+
+      <p>
+        <b>🏷️ Tags:</b>
+        ${escapeHTML(
+          Array.isArray(scene.tags)
+            ? scene.tags.join(", ")
+            : ""
+        )}
+      </p>
+
+      <div class="prompt">
+        <b>🎥 Video Prompt</b><br><br>
+        ${escapeHTML(scene.video_prompt || "")}
+      </div>
+
+      ${
+        scene.voice_line
+        ?
+        `
+        <p>
+          <b>🗣️ Voice:</b><br>
+          ${escapeHTML(scene.voice_line)}
+        </p>
+        `
+        :
+        ""
+      }
+
+    `;
+
+    scenesBox.appendChild(div);
+
+  });
+
+}
+
+
+function showError(message) {
+
+  errorBox.textContent = message;
+  errorBox.style.display = "block";
+
+}
+
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
