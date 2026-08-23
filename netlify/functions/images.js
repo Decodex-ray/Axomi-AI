@@ -1,32 +1,57 @@
 const headers = {
-  "Content-Type": "application/json; charset=utf-8",
+  "Content-Type": "application/json; charset=UTF-8",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-function reply(statusCode, data) {
+function reply(status, data) {
   return {
-    statusCode,
+    statusCode: status,
     headers,
     body: JSON.stringify(data)
   };
 }
 
-const ASSAM_STYLE = `
-Authentic Assam, India.
-Authentic Assamese people.
-Respectful Assamese culture.
-Traditional Assamese clothing where appropriate,
-including Mekhela Sador and traditional dhoti/kurta.
-Natural Assam environments such as tea gardens,
-paddy fields, bamboo houses, villages, forests and the Brahmaputra.
-Keep faces, clothing and character appearance consistent.
-No stereotypes.
-Cinematic composition.
-`;
+function imageSize(format) {
+  if (String(format).includes("16:9")) {
+    return { width: 1280, height: 720 };
+  }
 
-exports.handler = async function (event) {
+  if (String(format).includes("1:1")) {
+    return { width: 1024, height: 1024 };
+  }
+
+  return { width: 768, height: 1365 };
+}
+
+function makePrompt(scene, options) {
+  return [
+    options.style || "2D cinematic animation",
+    "high quality animated film frame",
+    "authentic Assam, India",
+    "authentic Assamese people",
+    "respectful Assamese culture",
+    "consistent character design",
+    "consistent clothing and face",
+    "Mekhela Sador or traditional Assamese clothing when appropriate",
+    "natural Assamese environment",
+    "cinematic lighting",
+    "detailed background",
+    "beautiful composition",
+    "no text",
+    "no watermark",
+    "no logo",
+    "",
+    "STORY:",
+    options.story || "",
+    "",
+    "SCENE:",
+    scene.description || scene.video_prompt || scene.title || ""
+  ].join("\n");
+}
+
+exports.handler = async function(event) {
 
   if (event.httpMethod === "OPTIONS") {
     return {
@@ -45,119 +70,82 @@ exports.handler = async function (event) {
 
   try {
 
-    if (!event.body) {
-      return reply(400, {
-        success: false,
-        error: "Request body is empty."
-      });
-    }
-
     let body;
 
     try {
-      body = JSON.parse(event.body);
-    } catch {
+      body = JSON.parse(event.body || "{}");
+    } catch (error) {
       return reply(400, {
         success: false,
         error: "Invalid JSON request."
       });
     }
 
-    const prompt = String(body.prompt || "").trim();
+    const story = String(body.story || "").trim();
+    const style = String(body.style || "2D cinematic");
+    const format = String(body.format || "9:16");
+    const scenes = Array.isArray(body.scenes) ? body.scenes : [];
 
-    if (!prompt) {
+    if (!scenes.length) {
       return reply(400, {
         success: false,
-        error: "Image prompt is required."
+        error: "No scenes were provided."
       });
     }
 
-    /*
-      Keep the secret API key on Netlify.
-      Never put the secret key inside index.html.
-    */
+    const apiKey = process.env.POLLINATIONS_API_KEY;
 
-    const apiKey = process.env.POLLINATIONS_API_KEY || "";
+    if (!apiKey) {
+      return reply(500, {
+        success: false,
+        error:
+          "POLLINATIONS_API_KEY is missing. Add it in Netlify Environment Variables."
+      });
+    }
 
-    const finalPrompt = `
-${ASSAM_STYLE}
+    const size = imageSize(format);
 
-Create one high-quality animation frame.
+    const images = [];
 
-${prompt}
+    for (let i = 0; i < scenes.length; i++) {
 
-The image should look like a frame from a professional animated film.
-Use strong visual storytelling, natural lighting and clear characters.
-`;
+      const scene = scenes[i];
 
-    /*
-      If a Pollinations key is configured, use the current API.
-    */
+      const prompt = makePrompt(scene, {
+        story,
+        style,
+        format
+      });
 
-    if (apiKey) {
+      const encodedPrompt = encodeURIComponent(prompt);
 
       const url =
         "https://gen.pollinations.ai/image/" +
-        encodeURIComponent(finalPrompt) +
-        "?model=flux&width=768&height=1344";
+        encodedPrompt +
+        "?model=flux" +
+        "&width=" + size.width +
+        "&height=" + size.height;
 
-      const r = await fetch(url, {
-        headers: {
-          "Authorization": "Bearer " + apiKey
-        }
-      });
-
-      if (!r.ok) {
-        const errorText = await r.text();
-
-        throw new Error(
-          "Image provider error " +
-          r.status +
-          ": " +
-          errorText.slice(0, 200)
-        );
-      }
-
-      /*
-        Convert the generated image to a data URL.
-        This makes the browser display it directly.
-      */
-
-      const buffer = Buffer.from(
-        await r.arrayBuffer()
-      );
-
-      const base64 = buffer.toString("base64");
-
-      return reply(200, {
-        success: true,
-        provider: "pollinations",
-        image:
-          "data:image/jpeg;base64," +
-          base64
+      images.push({
+        scene: i + 1,
+        title: scene.title || `Scene ${i + 1}`,
+        prompt,
+        url,
+        provider: "Pollinations"
       });
     }
 
-    /*
-      No API key yet.
-      Return a browser-safe generation URL so we can test
-      the complete UI without breaking the app.
-    */
-
-    const demoUrl =
-      "https://gen.pollinations.ai/image/" +
-      encodeURIComponent(finalPrompt) +
-      "?model=flux&width=768&height=1344";
-
     return reply(200, {
       success: true,
-      provider: "pollinations-demo",
-      image: demoUrl
+      provider: "Pollinations",
+      style,
+      format,
+      images
     });
 
   } catch (error) {
 
-    console.error("IMAGE ERROR:", error);
+    console.error("IMAGE FUNCTION ERROR:", error);
 
     return reply(500, {
       success: false,
